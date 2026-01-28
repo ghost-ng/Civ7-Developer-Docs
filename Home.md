@@ -29,7 +29,18 @@ Mods must specify which Age(s) their content applies to using ActionCriteria in 
 
 1. **[Setting Up Your Mod](docs/Getting-Started.md)** - Create your first .modinfo file
 2. **[modinfo Files Reference](docs/Modinfo-Files.md)** - Complete .modinfo documentation
-3. **[Adding Policies Tutorial](docs/tutorials/Adding-Policies.md)** - Step-by-step example
+
+## Tutorials
+
+Step-by-step guides for common modding tasks:
+
+| Tutorial | Description |
+|----------|-------------|
+| [Adding Policies](docs/tutorials/Adding-Policies.md) | Create new traditions with modifiers |
+| [Creating a Unit](docs/tutorials/Creating-a-Unit.md) | Add custom units with combat abilities |
+| [Creating a Civilization](docs/tutorials/Creating-a-Civilization.md) | Build complete civs with leaders and abilities |
+| [Creating a Map Generator](docs/tutorials/Creating-a-Map-Generator.md) | Write JavaScript map scripts |
+| [Creating UI Extensions](docs/tutorials/Creating-UI-Extensions.md) | Add custom panels and hotkeys |
 
 ## Core Documentation
 

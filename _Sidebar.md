@@ -67,6 +67,10 @@
 
 ## Tutorials
 - [Adding Policies](docs/tutorials/Adding-Policies.md)
+- [Creating a Unit](docs/tutorials/Creating-a-Unit.md)
+- [Creating a Civilization](docs/tutorials/Creating-a-Civilization.md)
+- [Creating a Map Generator](docs/tutorials/Creating-a-Map-Generator.md)
+- [Creating UI Extensions](docs/tutorials/Creating-UI-Extensions.md)
 
 ## Examples
 - [Quick Reference](examples/README.md)
