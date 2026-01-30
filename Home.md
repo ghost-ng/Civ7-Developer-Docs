@@ -48,7 +48,8 @@ Step-by-step guides for common modding tasks:
 
 | Topic | Description |
 |-------|-------------|
-| [Types and Kinds](docs/database/Types-and-Kinds.md) | The type system that powers all game entities |
+| [Types and Kinds](docs/database/Types-and-Kinds.md) | All 108 KIND values that power game entities |
+| [Tables Reference](docs/database/Tables-Reference.md) | Complete reference for 673 database tables |
 | [Units](docs/database/Units.md) | Unit definitions, stats, and abilities |
 | [Buildings](docs/database/Buildings.md) | Buildings, improvements, and wonders |
 | [Civilizations](docs/database/Civilizations.md) | Civilization definitions and traits |
@@ -62,9 +63,9 @@ The modifier system is how all game effects work in Civ VII.
 | Topic | Description |
 |-------|-------------|
 | [Overview](docs/modifiers/Overview.md) | How modifiers work |
-| [Effect Types](docs/modifiers/Effect-Types.md) | All available effects |
-| [Collection Types](docs/modifiers/Collection-Types.md) | Target subject collections |
-| [Requirement Types](docs/modifiers/Requirement-Types.md) | Conditional requirements |
+| [Effect Types](docs/modifiers/Effect-Types.md) | All 376+ available effect types |
+| [Collection Types](docs/modifiers/Collection-Types.md) | All 40 target subject collections |
+| [Requirement Types](docs/modifiers/Requirement-Types.md) | All 280+ conditional requirements |
 
 ### JavaScript API
 
@@ -73,6 +74,7 @@ Civ VII uses JavaScript for scripting instead of Lua.
 | Topic | Description |
 |-------|-------------|
 | [Overview](docs/javascript/Overview.md) | Global objects, events, and API reference |
+| [Events Reference](docs/javascript/Events.md) | All 26+ JavaScript events with parameters |
 
 ### Narrative Events
 
@@ -81,6 +83,16 @@ Pop-up events with choices and quests.
 | Topic | Description |
 |-------|-------------|
 | [Overview](docs/narrative/Overview.md) | Event structure, triggers, and rewards |
+
+## Comprehensive Reference
+
+For quick lookups, see the **[Cross-Reference Index](docs/Index.md)** which contains:
+- All 108 KIND values organized by category
+- All 376+ Effect Types for modifiers
+- All 40 Collection Types for targeting
+- All 280+ Requirement Types for conditions
+- All 673 database tables with descriptions
+- Common modding tasks quick reference
 
 ## Examples
 

@@ -16,6 +16,7 @@
 
 ## Database Reference
 - [Types and Kinds](docs/database/Types-and-Kinds.md)
+- [Tables Reference](docs/database/Tables-Reference.md)
 - [Units](docs/database/Units.md)
 - [Buildings](docs/database/Buildings.md)
 - [Map & Terrain](docs/database/Map-Terrain.md)
@@ -55,6 +56,7 @@
 
 ## JavaScript API
 - [Overview](docs/javascript/Overview.md)
+- [Events Reference](docs/javascript/Events.md)
 
 ## Narrative Events
 - [Overview](docs/narrative/Overview.md)
