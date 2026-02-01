@@ -59,18 +59,11 @@ my-inland-sea-map/
                 </UpdateText>
             </Actions>
         </ActionGroup>
-
-        <!-- Game scope for map generation -->
-        <ActionGroup id="map-scripts" scope="game" criteria="always">
-            <Actions>
-                <MapGenScripts>
-                    <Item>maps/inland-sea.js</Item>
-                </MapGenScripts>
-            </Actions>
-        </ActionGroup>
     </ActionGroups>
 </Mod>
 ```
+
+> **Note:** Map scripts are loaded automatically when the map is selected based on the `Maps` table registration in Step 2. There is no `<MapGenScripts>` action - map scripts register event handlers that the game calls during generation.
 
 ## Step 2: Register the Map Script
 
@@ -127,9 +120,6 @@ my-inland-sea-map/
  * Creates a map with a large central sea surrounded by land
  */
 
-// Import utilities from base game
-import { shuffle, getRandomNumber } from './map-utilities.js';
-
 // ============================================
 // CONFIGURATION
 // ============================================
@@ -152,13 +142,32 @@ const MAP_CONFIG = {
 };
 
 // ============================================
+// MAP INIT DATA
+// ============================================
+
+/**
+ * Called when the game needs map initialization parameters
+ */
+function requestMapData(initParams) {
+    // Configure map parameters based on settings
+    const mapData = {
+        width: initParams.width,
+        height: initParams.height,
+        wrapX: true,
+        wrapY: false
+    };
+
+    engine.call("SetMapInitData", mapData);
+}
+
+// ============================================
 // MAIN GENERATION FUNCTION
 // ============================================
 
 /**
- * Main entry point called by the game engine
+ * Main entry point called by the game engine via engine event
  */
-export function generateMap() {
+function generateMap() {
     console.log("Generating Inland Sea map...");
 
     const width = GameplayMap.getGridWidth();
@@ -495,7 +504,18 @@ function shuffle(array) {
     }
     return array;
 }
+
+// ============================================
+// REGISTER EVENT HANDLERS
+// ============================================
+
+// Register for map generation events
+// The game calls these when this map type is selected
+engine.on("RequestMapInitData", requestMapData);
+engine.on("GenerateMap", generateMap);
 ```
+
+> **Important:** Map scripts use `engine.on()` to register for generation events. The game calls `RequestMapInitData` first to get map parameters, then `GenerateMap` to generate the terrain. Do NOT use `export function` - the game does not use ES module exports for map scripts.
 
 ## Step 4: Add Localization
 
@@ -503,16 +523,18 @@ function shuffle(array) {
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <Database>
-    <LocalizedText>
-        <Row Tag="LOC_MAP_INLAND_SEA_NAME" Language="en_US">
+    <EnglishText>
+        <Row Tag="LOC_MAP_INLAND_SEA_NAME">
             <Text>Inland Sea</Text>
         </Row>
-        <Row Tag="LOC_MAP_INLAND_SEA_DESCRIPTION" Language="en_US">
+        <Row Tag="LOC_MAP_INLAND_SEA_DESCRIPTION">
             <Text>A large central sea surrounded by land on all sides, perfect for naval trade and coastal empires.</Text>
         </Row>
-    </LocalizedText>
+    </EnglishText>
 </Database>
 ```
+
+> **Note:** Use language-specific table names like `EnglishText`, `FrenchText`, etc. Do NOT use a `Language` attribute on rows.
 
 ## Key JavaScript APIs
 

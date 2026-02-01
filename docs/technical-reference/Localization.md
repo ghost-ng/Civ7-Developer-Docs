@@ -6,50 +6,49 @@ This document covers the localization system in Civilization VII, including text
 
 Civ VII's localization system allows mods to provide text in multiple languages:
 
-- **LocalizedText Table** - Store all translatable strings
+- **Language-specific Text Tables** - Store translatable strings per language
 - **Text Tags** - Unique identifiers for each string (LOC_*)
 - **Language Codes** - ISO language identifiers
 - **Text Formatting** - Icons, colors, and dynamic values
 - **Gender/Plural Support** - Grammar handling for different languages
 
-## Core Tables
+## Core Structure
 
-| Table | Purpose |
-|-------|---------|
-| `LocalizedText` | Primary table for all translated strings |
-| `LocalizedTextTags` | Register custom text tag patterns |
-| `Languages` | Define supported languages |
-| `FontStyleSheets` | Font configurations per language |
+Unlike some earlier documentation may suggest, Civ VII uses **language-specific table names** rather than a single `LocalizedText` table with a `Language` column.
 
-## LocalizedText Table
-
-### Basic Structure
+### Correct Text File Format
 
 ```xml
-<LocalizedText>
-    <Row Tag="LOC_MY_TEXT_KEY" Language="en_US">
-        <Text>This is my English text.</Text>
-    </Row>
-    <Row Tag="LOC_MY_TEXT_KEY" Language="fr_FR">
-        <Text>Ceci est mon texte français.</Text>
-    </Row>
-    <Row Tag="LOC_MY_TEXT_KEY" Language="de_DE">
-        <Text>Dies ist mein deutscher Text.</Text>
-    </Row>
-</LocalizedText>
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+    <EnglishText>
+        <Row Tag="LOC_MY_TEXT_KEY">
+            <Text>This is my English text.</Text>
+        </Row>
+    </EnglishText>
+</Database>
 ```
 
-### LocalizedText Columns
+> **Important:** The table name (e.g., `EnglishText`) determines the language. Do NOT use a `Language` attribute on rows.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `Tag` | TEXT | Unique text identifier (must start with LOC_) |
-| `Language` | TEXT | Language code (e.g., en_US, fr_FR) |
-| `Text` | TEXT | The actual translated string |
-| `Gender` | TEXT | Gender variant (Male, Female, Neutral) |
-| `Plurality` | INTEGER | Plural form number |
+### Language Table Names
 
-## Supported Languages
+| Language | Table Name |
+|----------|------------|
+| English (US) | `EnglishText` |
+| French | `FrenchText` |
+| German | `GermanText` |
+| Spanish | `SpanishText` |
+| Italian | `ItalianText` |
+| Japanese | `JapaneseText` |
+| Korean | `KoreanText` |
+| Polish | `PolishText` |
+| Portuguese (Brazil) | `PortugueseText` |
+| Russian | `RussianText` |
+| Chinese (Simplified) | `SimplifiedChineseText` |
+| Chinese (Traditional) | `TraditionalChineseText` |
+
+## Supported Language Codes
 
 | Code | Language |
 |------|----------|
@@ -66,9 +65,55 @@ Civ VII's localization system allows mods to provide text in multiple languages:
 | `zh_Hans_CN` | Chinese (Simplified) |
 | `zh_Hant_HK` | Chinese (Traditional) |
 
-## Text Tag Naming Conventions
+## File Organization
 
-Follow these conventions for consistent localization:
+### Recommended Structure
+
+```
+MyMod/
+├── text/
+│   ├── en_us/
+│   │   ├── MyMod_Text.xml
+│   │   ├── MyMod_Units_Text.xml
+│   │   └── MyMod_Buildings_Text.xml
+│   ├── fr_fr/
+│   │   └── MyMod_Text.xml
+│   └── de_de/
+│       └── MyMod_Text.xml
+└── my-mod.modinfo
+```
+
+### ModInfo Configuration
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<Mod id="my-mod" version="1" xmlns="ModInfo">
+    <Properties>
+        <Name>My Mod</Name>
+    </Properties>
+    <ActionCriteria>
+        <Criteria id="always"><AlwaysMet/></Criteria>
+    </ActionCriteria>
+    <ActionGroups>
+        <ActionGroup id="game" scope="game" criteria="always">
+            <Actions>
+                <!-- English (required as fallback) -->
+                <UpdateText>
+                    <Item>text/en_us/MyMod_Text.xml</Item>
+                </UpdateText>
+
+                <!-- Optional: Localized versions using locale attribute -->
+                <UpdateText>
+                    <Item locale="fr_FR">text/fr_fr/MyMod_Text.xml</Item>
+                    <Item locale="de_DE">text/de_de/MyMod_Text.xml</Item>
+                </UpdateText>
+            </Actions>
+        </ActionGroup>
+    </ActionGroups>
+</Mod>
+```
+
+## Text Tag Naming Conventions
 
 ### Standard Prefixes
 
@@ -80,7 +125,7 @@ Follow these conventions for consistent localization:
 | `LOC_TECH_` | Technology names and descriptions |
 | `LOC_CIVIC_` | Civic names and descriptions |
 | `LOC_LEADER_` | Leader names and dialogue |
-| `LOC_CIV_` | Civilization names |
+| `LOC_CIV_` or `LOC_CIVILIZATION_` | Civilization names |
 | `LOC_TRAIT_` | Trait names and descriptions |
 | `LOC_ABILITY_` | Ability names and descriptions |
 | `LOC_MODIFIER_` | Modifier descriptions |
@@ -97,26 +142,83 @@ Follow these conventions for consistent localization:
 | `_TOOLTIP` | Hover tooltip |
 | `_HELP` | Help text |
 
-### Example Naming
+## Complete Example: Localized Civilization
+
+### English Text (text/en_us/MyCiv_Text.xml)
 
 ```xml
-<LocalizedText>
-    <!-- Unit localization -->
-    <Row Tag="LOC_UNIT_MY_WARRIOR_NAME" Language="en_US">
-        <Text>Elite Warrior</Text>
-    </Row>
-    <Row Tag="LOC_UNIT_MY_WARRIOR_DESCRIPTION" Language="en_US">
-        <Text>A powerful melee unit with bonus combat strength.</Text>
-    </Row>
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+    <EnglishText>
+        <!-- Civilization -->
+        <Row Tag="LOC_CIVILIZATION_MY_ATLANTIS_NAME">
+            <Text>Atlantis</Text>
+        </Row>
+        <Row Tag="LOC_CIVILIZATION_MY_ATLANTIS_DESCRIPTION">
+            <Text>The legendary island civilization of Atlantis.</Text>
+        </Row>
+        <Row Tag="LOC_CIVILIZATION_MY_ATLANTIS_ADJECTIVE">
+            <Text>Atlantean</Text>
+        </Row>
 
-    <!-- Building localization -->
-    <Row Tag="LOC_BUILDING_MY_TEMPLE_NAME" Language="en_US">
-        <Text>Grand Temple</Text>
-    </Row>
-    <Row Tag="LOC_BUILDING_MY_TEMPLE_DESCRIPTION" Language="en_US">
-        <Text>A magnificent temple that provides +3 [ICON_FAITH] Faith.</Text>
-    </Row>
-</LocalizedText>
+        <!-- Leader -->
+        <Row Tag="LOC_LEADER_MY_POSEIDON_NAME">
+            <Text>Poseidon</Text>
+        </Row>
+        <Row Tag="LOC_LEADER_MY_POSEIDON_SUBTITLE">
+            <Text>God-King of Atlantis</Text>
+        </Row>
+
+        <!-- Unique Ability -->
+        <Row Tag="LOC_TRAIT_MY_ABILITY_NAME">
+            <Text>Masters of the Sea</Text>
+        </Row>
+        <Row Tag="LOC_TRAIT_MY_ABILITY_DESCRIPTION">
+            <Text>Naval units receive +5 [icon:YIELD_STRENGTH] Combat Strength. Coastal cities gain +2 [icon:YIELD_FOOD] Food and +2 [icon:YIELD_GOLD] Gold.</Text>
+        </Row>
+
+        <!-- Unique Unit -->
+        <Row Tag="LOC_UNIT_ATLANTEAN_TRIREME_NAME">
+            <Text>Atlantean Trireme</Text>
+        </Row>
+        <Row Tag="LOC_UNIT_ATLANTEAN_TRIREME_DESCRIPTION">
+            <Text>Unique Atlantean naval unit. Stronger than the regular Trireme and heals in ocean tiles.</Text>
+        </Row>
+    </EnglishText>
+</Database>
+```
+
+### French Translation (text/fr_fr/MyCiv_Text.xml)
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+    <FrenchText>
+        <Row Tag="LOC_CIVILIZATION_MY_ATLANTIS_NAME">
+            <Text>Atlantide</Text>
+        </Row>
+        <Row Tag="LOC_CIVILIZATION_MY_ATLANTIS_DESCRIPTION">
+            <Text>La legendaire civilisation insulaire de l'Atlantide.</Text>
+        </Row>
+        <Row Tag="LOC_CIVILIZATION_MY_ATLANTIS_ADJECTIVE">
+            <Text>Atlante</Text>
+        </Row>
+
+        <Row Tag="LOC_LEADER_MY_POSEIDON_NAME">
+            <Text>Poseidon</Text>
+        </Row>
+        <Row Tag="LOC_LEADER_MY_POSEIDON_SUBTITLE">
+            <Text>Dieu-Roi de l'Atlantide</Text>
+        </Row>
+
+        <Row Tag="LOC_TRAIT_MY_ABILITY_NAME">
+            <Text>Maitres des Mers</Text>
+        </Row>
+        <Row Tag="LOC_TRAIT_MY_ABILITY_DESCRIPTION">
+            <Text>Les unites navales recoivent +5 [icon:YIELD_STRENGTH] Force de combat. Les villes cotieres gagnent +2 [icon:YIELD_FOOD] Nourriture et +2 [icon:YIELD_GOLD] Or.</Text>
+        </Row>
+    </FrenchText>
+</Database>
 ```
 
 ## Text Formatting
@@ -127,27 +229,20 @@ Use icon tags to display game icons in text:
 
 | Icon Tag | Display |
 |----------|---------|
-| `[ICON_FOOD]` | Food icon |
-| `[ICON_PRODUCTION]` | Production icon |
-| `[ICON_GOLD]` | Gold icon |
-| `[ICON_SCIENCE]` | Science icon |
-| `[ICON_CULTURE]` | Culture icon |
-| `[ICON_FAITH]` | Faith icon |
-| `[ICON_HAPPINESS]` | Happiness icon |
-| `[ICON_DIPLOMACY]` | Diplomacy icon |
-| `[ICON_STRENGTH]` | Combat strength icon |
-| `[ICON_MOVEMENT]` | Movement icon |
-| `[ICON_RANGE]` | Range icon |
-| `[ICON_CAPITAL]` | Capital icon |
-| `[ICON_CITIZEN]` | Citizen/population icon |
-| `[ICON_TURN]` | Turn icon |
-| `[ICON_LEGACY]` | Legacy point icon |
+| `[icon:YIELD_FOOD]` | Food icon |
+| `[icon:YIELD_PRODUCTION]` | Production icon |
+| `[icon:YIELD_GOLD]` | Gold icon |
+| `[icon:YIELD_SCIENCE]` | Science icon |
+| `[icon:YIELD_CULTURE]` | Culture icon |
+| `[icon:YIELD_FAITH]` | Faith/Happiness icon |
+| `[icon:YIELD_DIPLOMACY]` | Diplomacy icon |
+| `[icon:YIELD_STRENGTH]` | Combat strength icon |
 
 ### Example with Icons
 
 ```xml
-<Row Tag="LOC_MY_BUILDING_DESCRIPTION" Language="en_US">
-    <Text>Provides +2 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production. Requires 100 [ICON_GOLD] Gold maintenance per turn.</Text>
+<Row Tag="LOC_MY_BUILDING_DESCRIPTION">
+    <Text>Provides +2 [icon:YIELD_FOOD] Food and +1 [icon:YIELD_PRODUCTION] Production.</Text>
 </Row>
 ```
 
@@ -156,11 +251,11 @@ Use icon tags to display game icons in text:
 Use color tags for emphasis:
 
 ```xml
-<Row Tag="LOC_MY_WARNING_TEXT" Language="en_US">
+<Row Tag="LOC_MY_WARNING_TEXT">
     <Text>[COLOR_RED]Warning:[ENDCOLOR] This action cannot be undone.</Text>
 </Row>
 
-<Row Tag="LOC_MY_BONUS_TEXT" Language="en_US">
+<Row Tag="LOC_MY_BONUS_TEXT">
     <Text>[COLOR_GREEN]+50%[ENDCOLOR] Production bonus active.</Text>
 </Row>
 ```
@@ -174,20 +269,15 @@ Use color tags for emphasis:
 | `[COLOR_BLUE]` | Blue (links, info) |
 | `[COLOR_YELLOW]` | Yellow (highlights) |
 | `[COLOR_GREY]` | Grey (disabled, secondary) |
-| `[COLOR_FLOAT_FOOD]` | Food color |
-| `[COLOR_FLOAT_PRODUCTION]` | Production color |
-| `[COLOR_FLOAT_GOLD]` | Gold color |
-| `[COLOR_FLOAT_SCIENCE]` | Science color |
-| `[COLOR_FLOAT_CULTURE]` | Culture color |
 | `[ENDCOLOR]` | End color formatting |
 
 ### Line Breaks
 
-Use `[NEWLINE]` for line breaks:
+Use `[N]` or `[NEWLINE]` for line breaks:
 
 ```xml
-<Row Tag="LOC_MY_MULTILINE_TEXT" Language="en_US">
-    <Text>First line of text.[NEWLINE]Second line of text.[NEWLINE][NEWLINE]Paragraph after blank line.</Text>
+<Row Tag="LOC_MY_MULTILINE_TEXT">
+    <Text>First line of text.[N]Second line of text.[N][N]Paragraph after blank line.</Text>
 </Row>
 ```
 
@@ -198,8 +288,8 @@ Use `[NEWLINE]` for line breaks:
 Use curly braces for dynamic values:
 
 ```xml
-<Row Tag="LOC_MY_DYNAMIC_TEXT" Language="en_US">
-    <Text>You have earned {1_Amount} [ICON_GOLD] Gold from {2_Source}.</Text>
+<Row Tag="LOC_MY_DYNAMIC_TEXT">
+    <Text>You have earned {1_Amount} [icon:YIELD_GOLD] Gold from {2_Source}.</Text>
 </Row>
 ```
 
@@ -212,235 +302,15 @@ Use curly braces for dynamic values:
 | `{Amount}` | Named parameter |
 | `{1}` | Simple numbered parameter |
 
-### Example: Modifier Description
+## Gender Support
+
+Some languages require gender-specific text. Use the `Gender` child element:
 
 ```xml
-<Row Tag="LOC_MOD_BONUS_YIELD_DESCRIPTION" Language="en_US">
-    <Text>+{1_Amount} {2_YieldIcon} {3_YieldName} in this city.</Text>
+<Row Tag="LOC_CIVILIZATION_AKSUM_ADJECTIVE">
+    <Text>Aksumite</Text>
+    <Gender>Masculine:an</Gender>
 </Row>
-```
-
-## Gender and Plurality
-
-### Gender Variants
-
-Some languages require gender-specific text:
-
-```xml
-<!-- German example with gender -->
-<Row Tag="LOC_LEADER_GREETING" Language="de_DE" Gender="Male">
-    <Text>Willkommen, mein Freund.</Text>
-</Row>
-<Row Tag="LOC_LEADER_GREETING" Language="de_DE" Gender="Female">
-    <Text>Willkommen, meine Freundin.</Text>
-</Row>
-```
-
-### Plural Forms
-
-Handle singular/plural variations:
-
-```xml
-<!-- Plurality: 1 = singular, 2 = plural -->
-<Row Tag="LOC_UNIT_COUNT" Language="en_US" Plurality="1">
-    <Text>{1_Count} Unit</Text>
-</Row>
-<Row Tag="LOC_UNIT_COUNT" Language="en_US" Plurality="2">
-    <Text>{1_Count} Units</Text>
-</Row>
-
-<!-- Russian has more plural forms -->
-<Row Tag="LOC_UNIT_COUNT" Language="ru_RU" Plurality="1">
-    <Text>{1_Count} юнит</Text>
-</Row>
-<Row Tag="LOC_UNIT_COUNT" Language="ru_RU" Plurality="2">
-    <Text>{1_Count} юнита</Text>
-</Row>
-<Row Tag="LOC_UNIT_COUNT" Language="ru_RU" Plurality="5">
-    <Text>{1_Count} юнитов</Text>
-</Row>
-```
-
-## File Organization
-
-### Recommended Structure
-
-```
-MyMod/
-├── Text/
-│   ├── en_US/
-│   │   ├── MyMod_Text.xml
-│   │   ├── MyMod_Units_Text.xml
-│   │   └── MyMod_Buildings_Text.xml
-│   ├── fr_FR/
-│   │   ├── MyMod_Text.xml
-│   │   └── ...
-│   └── de_DE/
-│       └── ...
-└── MyMod.modinfo
-```
-
-### ModInfo Configuration
-
-```xml
-<Mod id="my-mod" version="1.0">
-    <Properties>
-        <Name>My Mod</Name>
-    </Properties>
-
-    <LocalizedText>
-        <!-- English (required as fallback) -->
-        <Text id="my-mod-text-en">
-            <Items>
-                <File>Text/en_US/MyMod_Text.xml</File>
-            </Items>
-        </Text>
-
-        <!-- Optional translations -->
-        <Text id="my-mod-text-fr">
-            <Items>
-                <File>Text/fr_FR/MyMod_Text.xml</File>
-            </Items>
-            <Criteria>
-                <LanguageId>fr_FR</LanguageId>
-            </Criteria>
-        </Text>
-
-        <Text id="my-mod-text-de">
-            <Items>
-                <File>Text/de_DE/MyMod_Text.xml</File>
-            </Items>
-            <Criteria>
-                <LanguageId>de_DE</LanguageId>
-            </Criteria>
-        </Text>
-    </LocalizedText>
-</Mod>
-```
-
-## Complete Example: Localized Civilization
-
-### English Text (Text/en_US/MyCiv_Text.xml)
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<Database>
-    <LocalizedText>
-        <!-- Civilization -->
-        <Row Tag="LOC_CIV_MY_CIVILIZATION_NAME" Language="en_US">
-            <Text>Atlantis</Text>
-        </Row>
-        <Row Tag="LOC_CIV_MY_CIVILIZATION_DESCRIPTION" Language="en_US">
-            <Text>The legendary island civilization of Atlantis.</Text>
-        </Row>
-        <Row Tag="LOC_CIV_MY_CIVILIZATION_ADJECTIVE" Language="en_US">
-            <Text>Atlantean</Text>
-        </Row>
-
-        <!-- Leader -->
-        <Row Tag="LOC_LEADER_MY_LEADER_NAME" Language="en_US">
-            <Text>Poseidon</Text>
-        </Row>
-        <Row Tag="LOC_LEADER_MY_LEADER_SUBTITLE" Language="en_US">
-            <Text>God-King of Atlantis</Text>
-        </Row>
-
-        <!-- Unique Ability -->
-        <Row Tag="LOC_TRAIT_MY_ABILITY_NAME" Language="en_US">
-            <Text>Masters of the Sea</Text>
-        </Row>
-        <Row Tag="LOC_TRAIT_MY_ABILITY_DESCRIPTION" Language="en_US">
-            <Text>Naval units receive +5 [ICON_STRENGTH] Combat Strength. Coastal cities gain +2 [ICON_FOOD] Food and +2 [ICON_GOLD] Gold.</Text>
-        </Row>
-
-        <!-- Unique Unit -->
-        <Row Tag="LOC_UNIT_ATLANTEAN_TRIREME_NAME" Language="en_US">
-            <Text>Atlantean Trireme</Text>
-        </Row>
-        <Row Tag="LOC_UNIT_ATLANTEAN_TRIREME_DESCRIPTION" Language="en_US">
-            <Text>Unique Atlantean naval unit. Stronger than the regular Trireme and heals in ocean tiles.</Text>
-        </Row>
-
-        <!-- Unique Building -->
-        <Row Tag="LOC_BUILDING_LIGHTHOUSE_OF_ATLANTIS_NAME" Language="en_US">
-            <Text>Lighthouse of Atlantis</Text>
-        </Row>
-        <Row Tag="LOC_BUILDING_LIGHTHOUSE_OF_ATLANTIS_DESCRIPTION" Language="en_US">
-            <Text>Unique Atlantean building. Provides +3 [ICON_GOLD] Gold and +1 [ICON_SCIENCE] Science. Naval units trained here start with a free promotion.</Text>
-        </Row>
-
-        <!-- Civilopedia -->
-        <Row Tag="LOC_PEDIA_CIV_MY_CIVILIZATION_CHAPTER_HISTORY" Language="en_US">
-            <Text>Atlantis, as described by Plato, was a powerful island nation that existed around 9,000 years before his time. According to the legend, the Atlanteans possessed advanced technology and a sophisticated culture that rivaled any civilization of the ancient world.[NEWLINE][NEWLINE]The island was said to be larger than Libya and Asia Minor combined, located beyond the Pillars of Hercules (the Strait of Gibraltar). Its capital city featured concentric rings of water and land, connected by bridges and tunnels.</Text>
-        </Row>
-    </LocalizedText>
-</Database>
-```
-
-### French Translation (Text/fr_FR/MyCiv_Text.xml)
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<Database>
-    <LocalizedText>
-        <Row Tag="LOC_CIV_MY_CIVILIZATION_NAME" Language="fr_FR">
-            <Text>Atlantide</Text>
-        </Row>
-        <Row Tag="LOC_CIV_MY_CIVILIZATION_DESCRIPTION" Language="fr_FR">
-            <Text>La légendaire civilisation insulaire de l'Atlantide.</Text>
-        </Row>
-        <Row Tag="LOC_CIV_MY_CIVILIZATION_ADJECTIVE" Language="fr_FR">
-            <Text>Atlante</Text>
-        </Row>
-
-        <Row Tag="LOC_LEADER_MY_LEADER_NAME" Language="fr_FR">
-            <Text>Poséidon</Text>
-        </Row>
-        <Row Tag="LOC_LEADER_MY_LEADER_SUBTITLE" Language="fr_FR">
-            <Text>Dieu-Roi de l'Atlantide</Text>
-        </Row>
-
-        <Row Tag="LOC_TRAIT_MY_ABILITY_NAME" Language="fr_FR">
-            <Text>Maîtres des Mers</Text>
-        </Row>
-        <Row Tag="LOC_TRAIT_MY_ABILITY_DESCRIPTION" Language="fr_FR">
-            <Text>Les unités navales reçoivent +5 [ICON_STRENGTH] Force de combat. Les villes côtières gagnent +2 [ICON_FOOD] Nourriture et +2 [ICON_GOLD] Or.</Text>
-        </Row>
-    </LocalizedText>
-</Database>
-```
-
-### German Translation (Text/de_DE/MyCiv_Text.xml)
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<Database>
-    <LocalizedText>
-        <Row Tag="LOC_CIV_MY_CIVILIZATION_NAME" Language="de_DE">
-            <Text>Atlantis</Text>
-        </Row>
-        <Row Tag="LOC_CIV_MY_CIVILIZATION_DESCRIPTION" Language="de_DE">
-            <Text>Die legendäre Inselzivilisation von Atlantis.</Text>
-        </Row>
-        <Row Tag="LOC_CIV_MY_CIVILIZATION_ADJECTIVE" Language="de_DE">
-            <Text>Atlantisch</Text>
-        </Row>
-
-        <Row Tag="LOC_LEADER_MY_LEADER_NAME" Language="de_DE">
-            <Text>Poseidon</Text>
-        </Row>
-        <Row Tag="LOC_LEADER_MY_LEADER_SUBTITLE" Language="de_DE">
-            <Text>Gottkönig von Atlantis</Text>
-        </Row>
-
-        <Row Tag="LOC_TRAIT_MY_ABILITY_NAME" Language="de_DE">
-            <Text>Meister der Meere</Text>
-        </Row>
-        <Row Tag="LOC_TRAIT_MY_ABILITY_DESCRIPTION" Language="de_DE">
-            <Text>Marineeinheiten erhalten +5 [ICON_STRENGTH] Kampfstärke. Küstenstädte erhalten +2 [ICON_FOOD] Nahrung und +2 [ICON_GOLD] Gold.</Text>
-        </Row>
-    </LocalizedText>
-</Database>
 ```
 
 ## Accessing Text in JavaScript
@@ -480,8 +350,8 @@ const currentLanguage = Locale.GetCurrentLanguage();
 
 If you see raw LOC_ tags in game:
 - Verify the tag name matches exactly (case-sensitive)
-- Check that the language code is correct
-- Ensure the XML file is loaded in modinfo
+- Check that you're using the correct table name (`EnglishText`, not `LocalizedText`)
+- Ensure the XML file is loaded in modinfo via `<UpdateText>`
 - Verify XML syntax is valid
 
 ### Encoding Issues
@@ -494,6 +364,7 @@ Always use UTF-8 encoding:
 ### Icon Not Displaying
 
 - Check icon tag spelling (case-sensitive)
+- Use the correct format: `[icon:YIELD_NAME]`
 - Verify the icon exists in the game
 
 ## Related Documentation

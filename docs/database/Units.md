@@ -135,7 +135,7 @@ Combat statistics for units:
 
 ```xml
 <Unit_Stats>
-    <Row UnitType="UNIT_WARRIOR" Combat="25"/>
+    <Row UnitType="UNIT_WARRIOR" Combat="20"/>
     <Row UnitType="UNIT_ARCHER" Combat="15" RangedCombat="25" Range="2"/>
 </Unit_Stats>
 ```

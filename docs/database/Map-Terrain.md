@@ -155,9 +155,9 @@ Natural wonders are special features with unique bonuses.
 ```xml
 <Feature_NaturalWonders>
     <Row FeatureType="FEATURE_GRAND_CANYON" PlacementPercentage="100"
-         PlaceFirst="false" Size="4" Direction="0"/>
+         PlaceFirst="false" Tiles="4" NoRiver="true"/>
     <Row FeatureType="FEATURE_KILIMANJARO" PlacementPercentage="100"
-         PlaceFirst="true" Size="1" Direction="0"/>
+         PlaceFirst="true" Tiles="1" NoRiver="false"/>
 </Feature_NaturalWonders>
 ```
 
@@ -168,8 +168,8 @@ Natural wonders are special features with unique bonuses.
 | `FeatureType` | Text | Feature type FK |
 | `PlacementPercentage` | Integer | Chance to place (0-100) |
 | `PlaceFirst` | Boolean | Priority placement |
-| `Size` | Integer | Number of tiles |
-| `Direction` | Integer | Orientation |
+| `Tiles` | Integer | Number of tiles the wonder occupies |
+| `NoRiver` | Boolean | Prevents placement adjacent to rivers |
 
 ### Base Natural Wonders
 

@@ -57,6 +57,7 @@
 ## JavaScript API
 - [Overview](docs/javascript/Overview.md)
 - [Events Reference](docs/javascript/Events.md)
+- [Coherent Labs Engine](docs/javascript/Coherent-Labs-Engine.md)
 
 ## Narrative Events
 - [Overview](docs/narrative/Overview.md)
@@ -76,6 +77,9 @@
 
 ## Examples
 - [Quick Reference](examples/README.md)
+
+## Meta
+- [Accuracy Report](docs/Wiki-Accuracy-Report.md)
 
 ---
 *[Progress Tracker](progress.md)*

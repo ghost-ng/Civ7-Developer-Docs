@@ -138,22 +138,13 @@ my-elite-guard/
         />
     </ProgressionTreeNodeUnlocks>
 
-    <!-- 8. Set production cost -->
-    <Unit_ProductionCosts>
-        <Row UnitType="UNIT_ELITE_GUARD" ResourceType="RESOURCE_PRODUCTION" Amount="65"/>
-    </Unit_ProductionCosts>
+    <!-- 8. Set costs (production and purchase) -->
+    <Unit_Costs>
+        <Row UnitType="UNIT_ELITE_GUARD" YieldType="YIELD_PRODUCTION" Cost="65"/>
+        <Row UnitType="UNIT_ELITE_GUARD" YieldType="YIELD_GOLD" Cost="260"/>
+    </Unit_Costs>
 
-    <!-- 9. Set purchase cost -->
-    <Unit_PurchaseCosts>
-        <Row UnitType="UNIT_ELITE_GUARD" ResourceType="RESOURCE_GOLD" Amount="260"/>
-    </Unit_PurchaseCosts>
-
-    <!-- 10. Set maintenance cost -->
-    <Unit_MaintenanceCosts>
-        <Row UnitType="UNIT_ELITE_GUARD" ResourceType="RESOURCE_GOLD" Amount="2"/>
-    </Unit_MaintenanceCosts>
-
-    <!-- 11. Link ability to modifier -->
+    <!-- 9. Link ability to modifier -->
     <UnitAbilityModifiers>
         <Row UnitAbilityType="ABILITY_ELITE_GUARD_BONUS" ModifierId="MOD_ELITE_GUARD_VS_MELEE"/>
     </UnitAbilityModifiers>
@@ -171,9 +162,9 @@ my-elite-guard/
 | `UnitAbilities` | Defines named abilities |
 | `Unit_Abilities` | Links abilities to units |
 | `ProgressionTreeNodeUnlocks` | Tech/civic unlock requirements |
-| `Unit_ProductionCosts` | Production cost to build |
-| `Unit_PurchaseCosts` | Gold cost to purchase |
-| `Unit_MaintenanceCosts` | Per-turn maintenance cost |
+| `Unit_Costs` | Production and purchase costs (uses `YieldType` and `Cost` columns) |
+
+> **Note:** The `Unit_Costs` table is a single table for all unit costs. Use `YIELD_PRODUCTION` for build cost and `YIELD_GOLD` for purchase cost. Maintenance is set via the `Maintenance` column on the `Units` row itself.
 
 ## Step 3: Create the Combat Modifier
 
@@ -209,28 +200,30 @@ my-elite-guard/
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <Database>
-    <LocalizedText>
+    <EnglishText>
         <!-- Unit name and description -->
-        <Row Tag="LOC_UNIT_ELITE_GUARD_NAME" Language="en_US">
+        <Row Tag="LOC_UNIT_ELITE_GUARD_NAME">
             <Text>Elite Guard</Text>
         </Row>
-        <Row Tag="LOC_UNIT_ELITE_GUARD_DESCRIPTION" Language="en_US">
+        <Row Tag="LOC_UNIT_ELITE_GUARD_DESCRIPTION">
             <Text>Powerful heavy infantry unit with a bonus against other melee units. Unlocked with Bronze Working.</Text>
         </Row>
 
         <!-- Ability name and description -->
-        <Row Tag="LOC_ABILITY_ELITE_GUARD_BONUS_NAME" Language="en_US">
+        <Row Tag="LOC_ABILITY_ELITE_GUARD_BONUS_NAME">
             <Text>Elite Training</Text>
         </Row>
-        <Row Tag="LOC_ABILITY_ELITE_GUARD_BONUS_DESCRIPTION" Language="en_US">
+        <Row Tag="LOC_ABILITY_ELITE_GUARD_BONUS_DESCRIPTION">
             <Text>+5[icon:STAT_COMBAT] Combat Strength when fighting melee units.</Text>
         </Row>
-        <Row Tag="LOC_ABILITY_ELITE_GUARD_BONUS_PREVIEW" Language="en_US">
+        <Row Tag="LOC_ABILITY_ELITE_GUARD_BONUS_PREVIEW">
             <Text>Elite Training vs Melee: +5</Text>
         </Row>
-    </LocalizedText>
+    </EnglishText>
 </Database>
 ```
+
+> **Note:** Use language-specific table names (`EnglishText`, `FrenchText`, etc.) instead of a `Language` attribute.
 
 ### Icon Tags for Stats
 

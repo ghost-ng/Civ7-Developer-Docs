@@ -152,11 +152,18 @@ my-carthage-civ/
         <Row TraitType="TRAIT_CARTHAGE_ABILITY" ModifierId="MOD_CARTHAGE_NAVAL_PRODUCTION"/>
     </TraitModifiers>
 
-    <!-- 6. Starting bias (terrain preferences) -->
-    <StartBiases>
-        <Row CivilizationType="CIVILIZATION_CARTHAGE" TerrainType="TERRAIN_COAST" Tier="1"/>
-        <Row CivilizationType="CIVILIZATION_CARTHAGE" FeatureType="FEATURE_NAVIGABLE_RIVER" Tier="2"/>
-    </StartBiases>
+    <!-- 6. Starting bias (terrain preferences) - use specialized tables -->
+    <StartBiasTerrains>
+        <Row CivilizationType="CIVILIZATION_CARTHAGE" TerrainType="TERRAIN_COAST" Score="5"/>
+    </StartBiasTerrains>
+
+    <StartBiasAdjacentToCoasts>
+        <Row CivilizationType="CIVILIZATION_CARTHAGE" Score="5"/>
+    </StartBiasAdjacentToCoasts>
+
+    <StartBiasRivers>
+        <Row CivilizationType="CIVILIZATION_CARTHAGE" Score="3"/>
+    </StartBiasRivers>
 
     <!-- 7. Favored wonders -->
     <CivilizationFavoredWonders>
@@ -372,78 +379,80 @@ my-carthage-civ/
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <Database>
-    <LocalizedText>
+    <EnglishText>
         <!-- Civilization -->
-        <Row Tag="LOC_CIVILIZATION_CARTHAGE_NAME" Language="en_US">
+        <Row Tag="LOC_CIVILIZATION_CARTHAGE_NAME">
             <Text>Carthage</Text>
         </Row>
-        <Row Tag="LOC_CIVILIZATION_CARTHAGE_FULLNAME" Language="en_US">
+        <Row Tag="LOC_CIVILIZATION_CARTHAGE_FULLNAME">
             <Text>Carthaginian Empire</Text>
         </Row>
-        <Row Tag="LOC_CIVILIZATION_CARTHAGE_DESCRIPTION" Language="en_US">
+        <Row Tag="LOC_CIVILIZATION_CARTHAGE_DESCRIPTION">
             <Text>A great maritime trading empire of the ancient Mediterranean.</Text>
         </Row>
-        <Row Tag="LOC_CIVILIZATION_CARTHAGE_ADJECTIVE" Language="en_US">
+        <Row Tag="LOC_CIVILIZATION_CARTHAGE_ADJECTIVE">
             <Text>Carthaginian</Text>
         </Row>
 
         <!-- Civilization Traits -->
-        <Row Tag="LOC_TRAIT_CARTHAGE_NAME" Language="en_US">
+        <Row Tag="LOC_TRAIT_CARTHAGE_NAME">
             <Text>Carthage</Text>
         </Row>
-        <Row Tag="LOC_TRAIT_CARTHAGE_DESCRIPTION" Language="en_US">
+        <Row Tag="LOC_TRAIT_CARTHAGE_DESCRIPTION">
             <Text>Carthaginian civilization</Text>
         </Row>
-        <Row Tag="LOC_TRAIT_CARTHAGE_ABILITY_NAME" Language="en_US">
+        <Row Tag="LOC_TRAIT_CARTHAGE_ABILITY_NAME">
             <Text>Masters of Trade</Text>
         </Row>
-        <Row Tag="LOC_TRAIT_CARTHAGE_ABILITY_DESCRIPTION" Language="en_US">
+        <Row Tag="LOC_TRAIT_CARTHAGE_ABILITY_DESCRIPTION">
             <Text>+2[icon:YIELD_GOLD] Gold from Trade Routes. +25% [icon:YIELD_PRODUCTION] Production towards Naval units.</Text>
         </Row>
 
         <!-- Leader -->
-        <Row Tag="LOC_LEADER_HANNIBAL_NAME" Language="en_US">
+        <Row Tag="LOC_LEADER_HANNIBAL_NAME">
             <Text>Hannibal</Text>
         </Row>
-        <Row Tag="LOC_TRAIT_HANNIBAL_ABILITY_NAME" Language="en_US">
+        <Row Tag="LOC_TRAIT_HANNIBAL_ABILITY_NAME">
             <Text>Crossing the Alps</Text>
         </Row>
-        <Row Tag="LOC_TRAIT_HANNIBAL_ABILITY_DESCRIPTION" Language="en_US">
+        <Row Tag="LOC_TRAIT_HANNIBAL_ABILITY_DESCRIPTION">
             <Text>+5[icon:STAT_COMBAT] Combat Strength for units fighting in Hills or Mountains. Military units earn experience 25% faster.</Text>
         </Row>
 
         <!-- Agenda -->
-        <Row Tag="LOC_AGENDA_HANNIBAL_NAME" Language="en_US">
+        <Row Tag="LOC_AGENDA_HANNIBAL_NAME">
             <Text>Eternal Rival</Text>
         </Row>
-        <Row Tag="LOC_AGENDA_HANNIBAL_DESCRIPTION" Language="en_US">
+        <Row Tag="LOC_AGENDA_HANNIBAL_DESCRIPTION">
             <Text>Respects civilizations with strong militaries. Dislikes those who rely solely on diplomacy.</Text>
         </Row>
 
         <!-- Capital -->
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_CAPITAL" Language="en_US">
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_CAPITAL">
             <Text>Carthage</Text>
         </Row>
 
         <!-- City Names -->
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_1" Language="en_US"><Text>Carthage</Text></Row>
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_2" Language="en_US"><Text>Utica</Text></Row>
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_3" Language="en_US"><Text>Hippo Regius</Text></Row>
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_4" Language="en_US"><Text>Gades</Text></Row>
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_5" Language="en_US"><Text>Saguntum</Text></Row>
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_6" Language="en_US"><Text>Carthago Nova</Text></Row>
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_7" Language="en_US"><Text>Panormus</Text></Row>
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_8" Language="en_US"><Text>Lilybaeum</Text></Row>
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_9" Language="en_US"><Text>Hadrumetum</Text></Row>
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_10" Language="en_US"><Text>Leptis Magna</Text></Row>
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_11" Language="en_US"><Text>Thapsus</Text></Row>
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_12" Language="en_US"><Text>Malaca</Text></Row>
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_13" Language="en_US"><Text>Tingis</Text></Row>
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_14" Language="en_US"><Text>Cirta</Text></Row>
-        <Row Tag="LOC_CITY_NAME_CARTHAGE_15" Language="en_US"><Text>Zama</Text></Row>
-    </LocalizedText>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_1"><Text>Carthage</Text></Row>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_2"><Text>Utica</Text></Row>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_3"><Text>Hippo Regius</Text></Row>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_4"><Text>Gades</Text></Row>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_5"><Text>Saguntum</Text></Row>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_6"><Text>Carthago Nova</Text></Row>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_7"><Text>Panormus</Text></Row>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_8"><Text>Lilybaeum</Text></Row>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_9"><Text>Hadrumetum</Text></Row>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_10"><Text>Leptis Magna</Text></Row>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_11"><Text>Thapsus</Text></Row>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_12"><Text>Malaca</Text></Row>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_13"><Text>Tingis</Text></Row>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_14"><Text>Cirta</Text></Row>
+        <Row Tag="LOC_CITY_NAME_CARTHAGE_15"><Text>Zama</Text></Row>
+    </EnglishText>
 </Database>
 ```
+
+> **Note:** Use `EnglishText` (or `FrenchText`, `GermanText`, etc.) as the table name. Do NOT use a `Language` attribute on rows.
 
 ## Step 7: Install and Test
 
@@ -504,7 +513,7 @@ Add to your civilizations.xml:
 |-------|----------|
 | Civ not in selection | Check shell scope ActionGroup loads data |
 | Ability not working | Verify ModifierId links in TraitModifiers |
-| Wrong starting location | Check StartBiases tier values |
+| Wrong starting location | Check StartBias* tables and Score values |
 | Leader not linked | Check CivilizationLeaders table |
 | Text not showing | Verify LOC_ tags match between XML files |
 
@@ -515,15 +524,15 @@ Add to your civilizations.xml:
 - [ ] Traits
 - [ ] CivilizationTraits
 - [ ] TraitModifiers
-- [ ] StartBiases
+- [ ] StartBias tables (StartBiasBiomes, StartBiasTerrains, StartBiasRivers, etc.)
 - [ ] Leaders
 - [ ] LeaderTraits
 - [ ] CivilizationLeaders
 - [ ] LeaderCivPriorities
 - [ ] Agendas
 - [ ] LeaderAgendas
-- [ ] CivilizationCityNames
-- [ ] LocalizedText
+- [ ] CityNames (per-civilization city name list)
+- [ ] EnglishText (localization)
 
 ## Next Steps
 

@@ -1,540 +1,565 @@
 # UI Modding
 
-This document covers UI modding in Civilization VII, including screens, widgets, icons, and JavaScript-based UI customization.
+This document covers UI modding in Civilization VII, including the HTML/JavaScript architecture, custom components, and how to extend the game's interface.
 
 ## Overview
 
-Civ VII's UI is built with:
+Civ VII's UI is built on **Coherent Labs Gameface** (Cohtml), which renders standard web technologies:
 
-- **JavaScript** - UI logic and event handling
-- **HTML/CSS-like Markup** - Layout and styling
-- **BLP Files** - UI definition files
-- **DDS Textures** - UI graphics
+- **HTML5** - UI structure and layout
+- **CSS** - Styling and animations
+- **JavaScript** - Logic and event handling
+- **Web Components** - Custom reusable UI elements
 
-## UI System Architecture
+> **Note:** Unlike some earlier documentation suggested, Civ VII does NOT use "BLP" files. The UI is standard HTML/CSS/JavaScript.
+
+## UI Architecture
 
 ```
 UI Component
-├── Definition (.blp) - Layout and structure
-├── Script (.js) - Logic and behavior
-├── Style (.css) - Visual styling
+├── HTML (.html) - Structure and layout
+├── JavaScript (.js) - Logic and behavior
+├── CSS (.css) - Visual styling
 └── Assets (.dds) - Graphics and icons
 ```
 
-## Creating UI Elements
+### Key Files
 
-### Basic UI Registration
+| File | Purpose |
+|------|---------|
+| `root-shell.html` | Main menu/shell UI root |
+| `root-game.html` | In-game UI root |
+| `cohtml.js` | Coherent Labs engine interface |
 
-In your modinfo:
+## HTML Structure
 
-```xml
-<Mod id="my-ui-mod" version="1.0">
-    <Components>
-        <UserInterface id="my-ui">
-            <Items>
-                <File>UI/MyScreen.blp</File>
-                <File>UI/MyScreen.js</File>
-            </Items>
-        </UserInterface>
-    </Components>
-</Mod>
+Civ VII UI uses standard HTML5 with custom web components:
+
+### Example: root-shell.html
+
+```html
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Civilization VII</title>
+    <script src="fs://game/core/ui/cohtml.js"></script>
+    <script type="module" src="fs://game/core/ui/shell/root-shell.js"></script>
+    <link rel="stylesheet" href="fs://game/core/ui/shell/root-shell.css">
+    <link rel="stylesheet" href="fs://game/core/ui/themes/default/default.css">
+</head>
+<body class="font-body text-base text-accent-2">
+    <div id="roots" class="fullscreen"></div>
+    <div class="fxs-popups fullscreen"></div>
+    <nav-tray></nav-tray>
+    <div id="tooltips" class="absolute pointer-events-none"></div>
+</body>
+</html>
 ```
 
-### UI Definition File (.blp)
+### Custom Web Components
 
-BLP files define UI structure:
+The game uses custom HTML elements (web components) for UI panels:
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<Context Name="MyCustomPanel">
-    <Container ID="MainContainer" Size="400,300" Anchor="C,C">
-        <Grid ID="Background" Size="parent" Style="Panel_Background"/>
+```html
+<!-- Navigation tray -->
+<nav-tray></nav-tray>
 
-        <Stack ID="ContentStack" Anchor="C,C" StackGrowth="Bottom" Padding="10">
-            <Label ID="TitleLabel"
-                   String="LOC_MY_PANEL_TITLE"
-                   Style="HeaderText"/>
+<!-- Yield banner -->
+<panel-yield-banner></panel-yield-banner>
 
-            <Button ID="ActionButton"
-                    String="LOC_MY_BUTTON_TEXT"
-                    Size="150,40"
-                    Style="StandardButton"/>
-        </Stack>
+<!-- City banner manager -->
+<city-banner-manager></city-banner-manager>
 
-        <Button ID="CloseButton"
-                Anchor="TR"
-                Offset="-5,5"
-                Size="30,30"
-                Style="CloseButton"/>
-    </Container>
-</Context>
+<!-- Slots for UI placement -->
+<fxs-slot name="top-center" class="top center">
+    <panel-yield-banner></panel-yield-banner>
+</fxs-slot>
 ```
 
-### Common UI Elements
+## JavaScript UI Controllers
 
-| Element | Purpose |
-|---------|---------|
-| `Container` | Generic container for grouping |
-| `Stack` | Arranges children vertically/horizontally |
-| `Grid` | Background or structured layout |
-| `Label` | Text display |
-| `Button` | Clickable button |
-| `Image` | Static image display |
-| `TextInput` | Text entry field |
-| `Slider` | Value slider |
-| `ScrollPanel` | Scrollable content area |
-| `List` | Dynamic list of items |
-
-### Element Attributes
-
-| Attribute | Description |
-|-----------|-------------|
-| `ID` | Unique identifier for JavaScript access |
-| `Size` | Width,Height in pixels or "parent" |
-| `Anchor` | Position anchor (TL, TC, TR, CL, C, CR, BL, BC, BR) |
-| `Offset` | Pixel offset from anchor |
-| `Style` | CSS-like style reference |
-| `String` | Localization key for text |
-| `Visible` | Initial visibility (true/false) |
-| `Enabled` | Initial enabled state |
-
-## UI JavaScript
-
-### Basic Screen Controller
+### Basic Component Pattern
 
 ```javascript
-// MyScreen.js
-var MyScreen = {
-    // Called when the screen is initialized
-    Initialize: function() {
-        // Get UI elements
-        this.m_MainContainer = document.getElementById("MainContainer");
-        this.m_TitleLabel = document.getElementById("TitleLabel");
-        this.m_ActionButton = document.getElementById("ActionButton");
-        this.m_CloseButton = document.getElementById("CloseButton");
-
-        // Set up event handlers
-        this.m_ActionButton.addEventListener("click", this.OnActionClick.bind(this));
-        this.m_CloseButton.addEventListener("click", this.OnClose.bind(this));
-
-        // Subscribe to game events
-        Events.CitySelectionChanged.add(this.OnCitySelected.bind(this));
-    },
-
-    // Button click handler
-    OnActionClick: function() {
-        // Perform action
-        console.log("Action button clicked!");
-
-        // Play sound
-        UI.PlaySound("Click");
-
-        // Update UI
-        this.m_TitleLabel.textContent = Locale.Lookup("LOC_ACTION_COMPLETE");
-    },
-
-    // Close button handler
-    OnClose: function() {
-        UI.CloseScreen("MyScreen");
-    },
-
-    // Game event handler
-    OnCitySelected: function(playerID, cityID) {
-        if (cityID != null) {
-            var city = Cities.GetCity(playerID, cityID);
-            this.m_TitleLabel.textContent = city.GetName();
-        }
-    },
-
-    // Called when screen is shown
-    OnShow: function() {
-        this.m_MainContainer.style.visibility = "visible";
-    },
-
-    // Called when screen is hidden
-    OnHide: function() {
-        this.m_MainContainer.style.visibility = "hidden";
+// my-panel.js
+class MyPanel extends HTMLElement {
+    constructor() {
+        super();
+        this.handles = [];
     }
-};
 
-// Initialize when loaded
-MyScreen.Initialize();
+    connectedCallback() {
+        // Called when element is added to DOM
+        this.render();
+        this.setupEventListeners();
+    }
+
+    disconnectedCallback() {
+        // Called when element is removed - clean up
+        this.handles.forEach(h => h.clear());
+        this.handles = [];
+    }
+
+    render() {
+        this.innerHTML = `
+            <div class="panel-container">
+                <h2 class="panel-title">${Locale.Lookup("LOC_MY_PANEL_TITLE")}</h2>
+                <div class="panel-content" id="content"></div>
+                <button class="btn-close" id="close-btn">X</button>
+            </div>
+        `;
+    }
+
+    setupEventListeners() {
+        // DOM events
+        this.querySelector("#close-btn").addEventListener("click", () => {
+            this.hide();
+        });
+
+        // Game events via engine.on()
+        this.handles.push(
+            engine.on("TurnBegin", this.onTurnBegin.bind(this))
+        );
+        this.handles.push(
+            engine.on("CitySelectionChanged", this.onCitySelected.bind(this))
+        );
+    }
+
+    onTurnBegin(turn) {
+        this.querySelector("#content").textContent = `Turn: ${turn}`;
+    }
+
+    onCitySelected(playerID, cityID) {
+        if (cityID !== -1) {
+            const city = Cities.get(cityID);
+            this.querySelector("#content").textContent = city.name;
+        }
+    }
+
+    show() {
+        this.style.display = "block";
+    }
+
+    hide() {
+        this.style.display = "none";
+    }
+}
+
+// Register the custom element
+customElements.define("my-panel", MyPanel);
 ```
 
-### Common UI Functions
+### Registering Components
 
 ```javascript
-// Show/hide elements
-element.style.visibility = "visible"; // or "hidden"
-
-// Update text
-element.textContent = "New Text";
-element.textContent = Locale.Lookup("LOC_KEY");
-element.textContent = Locale.Compose("LOC_KEY", param1, param2);
-
-// Enable/disable
-element.disabled = true; // or false
-
-// Change style
-element.className = "NewStyleClass";
-element.style.color = "red";
-
-// Play sounds
-UI.PlaySound("Click");
-UI.PlaySound("Notification");
-
-// Open/close screens
-UI.OpenScreen("ScreenName");
-UI.CloseScreen("ScreenName");
-
-// Get localized text
-var text = Locale.Lookup("LOC_MY_TEXT");
-var formatted = Locale.Compose("LOC_MY_FORMAT", value1, value2);
+// Use Controls.define() for Firaxis-style components
+Controls.define("my-panel", {
+    createInstance: (container) => {
+        return new MyPanel();
+    }
+});
 ```
 
-### Event System
+## Event Handling
+
+### Engine Events (Game Events)
+
+All gameplay events use `engine.on()`:
 
 ```javascript
 // Subscribe to game events
-Events.TurnBegin.add(function(turn) {
+engine.on("TurnBegin", (turn) => {
     console.log("Turn " + turn + " started");
 });
 
-Events.CityProductionCompleted.add(function(playerID, cityID, itemType) {
-    // Handle production complete
+engine.on("CitySelectionChanged", (playerID, cityID) => {
+    // Handle city selection
 });
 
-Events.TechnologyResearched.add(function(playerID, techType) {
-    // Handle tech researched
-});
-
-Events.UnitMoved.add(function(playerID, unitID) {
+engine.on("UnitMoved", (playerID, unitID) => {
     // Handle unit movement
 });
 
-// Unsubscribe from events
-var handler = function() { /* ... */ };
-Events.TurnBegin.add(handler);
-// Later:
-Events.TurnBegin.remove(handler);
+// Unsubscribe
+const handle = engine.on("TurnBegin", callback);
+handle.clear(); // Later, to unsubscribe
 ```
 
-### Common Events
+### DOM Events
 
-| Event | Parameters | Trigger |
-|-------|------------|---------|
-| `TurnBegin` | turn | New turn starts |
-| `TurnEnd` | turn | Turn ends |
-| `CitySelectionChanged` | playerID, cityID | City selection changes |
-| `UnitSelectionChanged` | playerID, unitID | Unit selection changes |
-| `CityProductionCompleted` | playerID, cityID, itemType | Production finishes |
-| `TechnologyResearched` | playerID, techType | Tech completed |
-| `CivicCompleted` | playerID, civicType | Civic completed |
-| `WarDeclared` | attackerID, defenderID | War declared |
-| `PeaceMade` | player1ID, player2ID | Peace made |
-
-## Modifying Existing UI
-
-### Extending Base Screens
+Standard DOM events for UI interaction:
 
 ```javascript
-// Hook into existing screen
-(function() {
-    // Save original function
-    var originalInitialize = CityPanel.Initialize;
+element.addEventListener("click", (event) => {
+    // Handle click
+});
 
-    // Replace with extended version
-    CityPanel.Initialize = function() {
-        // Call original
-        originalInitialize.call(this);
-
-        // Add custom functionality
-        this.AddCustomButton();
-    };
-
-    CityPanel.AddCustomButton = function() {
-        // Create new button
-        var button = document.createElement("button");
-        button.id = "MyCustomButton";
-        button.textContent = Locale.Lookup("LOC_MY_BUTTON");
-        button.addEventListener("click", this.OnMyButtonClick.bind(this));
-
-        // Add to existing container
-        var container = document.getElementById("CityPanelContainer");
-        container.appendChild(button);
-    };
-
-    CityPanel.OnMyButtonClick = function() {
-        // Custom functionality
-        console.log("Custom button clicked!");
-    };
-})();
-```
-
-### Adding Context Menu Items
-
-```javascript
-// Add item to unit context menu
-ContextMenu.AddUnitAction({
-    ID: "MY_CUSTOM_ACTION",
-    Name: "LOC_MY_ACTION_NAME",
-    Tooltip: "LOC_MY_ACTION_TOOLTIP",
-    Icon: "ICON_MY_ACTION",
-    Condition: function(unit) {
-        // Return true if action should be shown
-        return unit.GetMoves() > 0;
-    },
-    Execute: function(unit) {
-        // Perform the action
-        console.log("Custom action on unit " + unit.GetID());
+element.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+        this.hide();
     }
 });
 ```
 
-## Custom Icons in UI
+## Styling
 
-### Using Icon Tags in Text
-
-```javascript
-// Icons display automatically in localized text
-var text = Locale.Lookup("LOC_YIELD_TEXT");
-// "LOC_YIELD_TEXT" = "+5 [ICON_GOLD] Gold"
-```
-
-### Setting Image Sources
-
-```javascript
-// Reference icon from atlas
-element.style.backgroundImage = "url('Icons/MyIcon.dds')";
-
-// Use icon definition
-Image.SetIcon(imageElement, "ICON_MY_CUSTOM");
-```
-
-## UI Styles
-
-### Common Style Classes
-
-| Class | Usage |
-|-------|-------|
-| `Panel_Background` | Standard panel background |
-| `HeaderText` | Large header text |
-| `BodyText` | Regular body text |
-| `StandardButton` | Default button style |
-| `CloseButton` | X close button |
-| `TooltipBox` | Tooltip container |
-| `ListItem` | List item row |
-| `SelectedItem` | Selected list item |
-
-### Custom Styles
+### CSS Structure
 
 ```css
-/* In style file */
-.MyCustomStyle {
+/* my-panel.css */
+.panel-container {
     background-color: rgba(0, 0, 0, 0.8);
-    border: 2px solid #gold;
-    padding: 10px;
-    font-size: 14px;
-    color: white;
+    border: 2px solid var(--color-gold);
+    padding: 1rem;
+    border-radius: 4px;
 }
 
-.MyCustomButton {
-    background-image: url('UI/ButtonBackground.dds');
+.panel-title {
+    font-size: 1.5rem;
+    color: var(--color-accent);
+    margin-bottom: 1rem;
+}
+
+.btn-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: none;
     border: none;
-    padding: 5px 15px;
+    color: white;
+    cursor: pointer;
 }
 
-.MyCustomButton:hover {
-    background-image: url('UI/ButtonBackgroundHover.dds');
+.btn-close:hover {
+    color: var(--color-gold);
 }
+```
+
+### Theme Variables
+
+The game uses CSS custom properties for theming:
+
+```css
+:root {
+    --color-gold: #c9a227;
+    --color-accent: #ffffff;
+    --color-background: rgba(20, 20, 20, 0.9);
+}
+```
+
+## ModInfo Registration
+
+### Loading UI Scripts
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<Mod id="my-ui-mod" version="1" xmlns="ModInfo">
+    <Properties>
+        <Name>My UI Mod</Name>
+        <Description>Adds custom UI panels.</Description>
+    </Properties>
+    <ActionCriteria>
+        <Criteria id="always"><AlwaysMet/></Criteria>
+    </ActionCriteria>
+    <ActionGroups>
+        <ActionGroup id="game-ui" scope="game" criteria="always">
+            <Actions>
+                <UIScripts>
+                    <Item>ui/my-panel.js</Item>
+                    <Item>ui/my-panel.css</Item>
+                </UIScripts>
+            </Actions>
+        </ActionGroup>
+    </ActionGroups>
+</Mod>
+```
+
+## Common UI Functions
+
+### Localization
+
+```javascript
+// Get localized string
+const text = Locale.Lookup("LOC_MY_TEXT_KEY");
+
+// Get localized string with parameters
+const formatted = Locale.Compose("LOC_MY_FORMAT", value1, value2);
+```
+
+### Game Data Access
+
+```javascript
+// Get local player
+const localPlayer = Players.get(GameContext.localPlayerID);
+
+// Get cities
+const city = Cities.get(cityID);
+
+// Get units
+const unit = Units.get(unitID);
+
+// Game info database
+const unitInfo = GameInfo.Units.lookup("UNIT_WARRIOR");
+```
+
+### Playing Sounds
+
+```javascript
+// Play UI sound
+engine.call("PlaySound", "UI_Click");
 ```
 
 ## Complete Example: Custom Info Panel
 
-### UI Definition (CustomInfoPanel.blp)
+### File Structure
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<Context Name="CustomInfoPanel">
-    <Container ID="PanelContainer" Size="300,200" Anchor="BR" Offset="-20,-100">
-        <Grid ID="Background" Size="parent" Style="Panel_Background"/>
-
-        <Stack ID="ContentStack" Anchor="T,C" Offset="0,10"
-               StackGrowth="Bottom" Padding="5">
-
-            <Label ID="PanelTitle"
-                   String="LOC_CUSTOM_PANEL_TITLE"
-                   Style="HeaderText"/>
-
-            <Container ID="YieldRow" Size="280,30">
-                <Label ID="GoldLabel" Anchor="L" Size="140,30"/>
-                <Label ID="ScienceLabel" Anchor="R" Size="140,30"/>
-            </Container>
-
-            <Container ID="UnitRow" Size="280,30">
-                <Label ID="UnitCountLabel" Anchor="L" Size="140,30"/>
-                <Label ID="CityCountLabel" Anchor="R" Size="140,30"/>
-            </Container>
-
-            <Button ID="DetailsButton"
-                    String="LOC_VIEW_DETAILS"
-                    Size="120,30"
-                    Style="StandardButton"/>
-        </Stack>
-
-        <Button ID="CloseButton"
-                Anchor="TR" Offset="-5,5"
-                Size="24,24"
-                Style="CloseButton"/>
-    </Container>
-</Context>
+```
+my-info-panel/
+├── ui/
+│   ├── info-panel.js
+│   └── info-panel.css
+├── text/
+│   └── en_us/
+│       └── info-panel-text.xml
+└── my-info-panel.modinfo
 ```
 
-### JavaScript Controller (CustomInfoPanel.js)
+### info-panel.js
 
 ```javascript
-var CustomInfoPanel = {
-    m_Container: null,
-    m_GoldLabel: null,
-    m_ScienceLabel: null,
-    m_UnitCountLabel: null,
-    m_CityCountLabel: null,
+class InfoPanel extends HTMLElement {
+    constructor() {
+        super();
+        this.handles = [];
+        this.isVisible = false;
+    }
 
-    Initialize: function() {
-        // Get elements
-        this.m_Container = document.getElementById("PanelContainer");
-        this.m_GoldLabel = document.getElementById("GoldLabel");
-        this.m_ScienceLabel = document.getElementById("ScienceLabel");
-        this.m_UnitCountLabel = document.getElementById("UnitCountLabel");
-        this.m_CityCountLabel = document.getElementById("CityCountLabel");
+    connectedCallback() {
+        this.render();
+        this.setupEvents();
+    }
 
-        var detailsButton = document.getElementById("DetailsButton");
-        var closeButton = document.getElementById("CloseButton");
+    disconnectedCallback() {
+        this.handles.forEach(h => h.clear());
+    }
 
-        // Event handlers
-        detailsButton.addEventListener("click", this.OnDetailsClick.bind(this));
-        closeButton.addEventListener("click", this.OnClose.bind(this));
+    render() {
+        this.innerHTML = `
+            <div class="info-panel" id="panel">
+                <div class="info-panel__header">
+                    <h2>${Locale.Lookup("LOC_INFO_PANEL_TITLE")}</h2>
+                    <button class="info-panel__close" id="close">X</button>
+                </div>
+                <div class="info-panel__content">
+                    <div class="info-row">
+                        <span class="info-label">${Locale.Lookup("LOC_GOLD_LABEL")}</span>
+                        <span class="info-value" id="gold-value">0</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">${Locale.Lookup("LOC_SCIENCE_LABEL")}</span>
+                        <span class="info-value" id="science-value">0</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">${Locale.Lookup("LOC_UNITS_LABEL")}</span>
+                        <span class="info-value" id="units-value">0</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    setupEvents() {
+        // Close button
+        this.querySelector("#close").addEventListener("click", () => {
+            this.hide();
+        });
+
+        // Keyboard shortcut
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "F8") {
+                this.toggle();
+            }
+        });
 
         // Game events
-        Events.TurnBegin.add(this.UpdatePanel.bind(this));
-        Events.PlayerYieldChanged.add(this.UpdateYields.bind(this));
-
-        // Initial update
-        this.UpdatePanel();
-    },
-
-    UpdatePanel: function() {
-        var localPlayer = Players.GetLocalPlayer();
-        if (!localPlayer) return;
-
-        this.UpdateYields();
-        this.UpdateCounts();
-    },
-
-    UpdateYields: function() {
-        var localPlayer = Players.GetLocalPlayer();
-        if (!localPlayer) return;
-
-        var treasury = localPlayer.GetTreasury();
-        var gold = treasury.GetGoldPerTurn();
-
-        var science = localPlayer.GetTechs().GetSciencePerTurn();
-
-        this.m_GoldLabel.textContent = Locale.Compose(
-            "LOC_GOLD_PER_TURN", gold
+        this.handles.push(
+            engine.on("TurnBegin", () => this.update())
         );
-        this.m_ScienceLabel.textContent = Locale.Compose(
-            "LOC_SCIENCE_PER_TURN", science
+        this.handles.push(
+            engine.on("PlayerYieldChanged", () => this.update())
         );
-    },
+    }
 
-    UpdateCounts: function() {
-        var localPlayer = Players.GetLocalPlayer();
-        if (!localPlayer) return;
+    update() {
+        if (!this.isVisible) return;
 
-        var units = localPlayer.GetUnits().GetCount();
-        var cities = localPlayer.GetCities().GetCount();
+        const player = Players.get(GameContext.localPlayerID);
+        if (!player) return;
 
-        this.m_UnitCountLabel.textContent = Locale.Compose(
-            "LOC_UNIT_COUNT", units
-        );
-        this.m_CityCountLabel.textContent = Locale.Compose(
-            "LOC_CITY_COUNT", cities
-        );
-    },
+        // Update values
+        this.querySelector("#gold-value").textContent =
+            player.Treasury?.GetGoldPerTurn() || 0;
+        this.querySelector("#science-value").textContent =
+            player.Techs?.GetSciencePerTurn() || 0;
+        this.querySelector("#units-value").textContent =
+            player.Units?.getUnitIds().length || 0;
+    }
 
-    OnDetailsClick: function() {
-        UI.PlaySound("Click");
-        UI.OpenScreen("Reports");
-    },
+    show() {
+        this.querySelector("#panel").style.display = "block";
+        this.isVisible = true;
+        this.update();
+    }
 
-    OnClose: function() {
-        UI.PlaySound("Click");
-        this.m_Container.style.visibility = "hidden";
-    },
+    hide() {
+        this.querySelector("#panel").style.display = "none";
+        this.isVisible = false;
+    }
 
-    Show: function() {
-        this.UpdatePanel();
-        this.m_Container.style.visibility = "visible";
-    },
-
-    Toggle: function() {
-        if (this.m_Container.style.visibility === "visible") {
-            this.OnClose();
+    toggle() {
+        if (this.isVisible) {
+            this.hide();
         } else {
-            this.Show();
+            this.show();
         }
     }
-};
+}
 
-CustomInfoPanel.Initialize();
+customElements.define("info-panel", InfoPanel);
 
-// Register keyboard shortcut
-Input.RegisterKeyHandler("I", function() {
-    CustomInfoPanel.Toggle();
-    return true;
+// Add to document when ready
+document.addEventListener("DOMContentLoaded", () => {
+    const panel = document.createElement("info-panel");
+    document.body.appendChild(panel);
 });
 ```
 
-### Localization (CustomInfoPanel_Text.xml)
+### info-panel.css
+
+```css
+.info-panel {
+    position: fixed;
+    right: 20px;
+    bottom: 100px;
+    width: 280px;
+    background: rgba(20, 20, 30, 0.95);
+    border: 2px solid #c9a227;
+    border-radius: 8px;
+    padding: 16px;
+    display: none;
+    z-index: 1000;
+}
+
+.info-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #555;
+    padding-bottom: 8px;
+}
+
+.info-panel__header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #c9a227;
+}
+
+.info-panel__close {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.info-panel__close:hover {
+    color: #fff;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #333;
+}
+
+.info-label {
+    color: #aaa;
+}
+
+.info-value {
+    color: #fff;
+    font-weight: bold;
+}
+```
+
+### info-panel-text.xml
 
 ```xml
-<LocalizedText>
-    <Row Tag="LOC_CUSTOM_PANEL_TITLE" Language="en_US">
-        <Text>Empire Overview</Text>
-    </Row>
-    <Row Tag="LOC_GOLD_PER_TURN" Language="en_US">
-        <Text>[ICON_GOLD] {1} per turn</Text>
-    </Row>
-    <Row Tag="LOC_SCIENCE_PER_TURN" Language="en_US">
-        <Text>[ICON_SCIENCE] {1} per turn</Text>
-    </Row>
-    <Row Tag="LOC_UNIT_COUNT" Language="en_US">
-        <Text>Units: {1}</Text>
-    </Row>
-    <Row Tag="LOC_CITY_COUNT" Language="en_US">
-        <Text>Cities: {1}</Text>
-    </Row>
-    <Row Tag="LOC_VIEW_DETAILS" Language="en_US">
-        <Text>View Details</Text>
-    </Row>
-</LocalizedText>
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+    <EnglishText>
+        <Row Tag="LOC_INFO_PANEL_TITLE">
+            <Text>Empire Overview</Text>
+        </Row>
+        <Row Tag="LOC_GOLD_LABEL">
+            <Text>Gold per Turn</Text>
+        </Row>
+        <Row Tag="LOC_SCIENCE_LABEL">
+            <Text>Science per Turn</Text>
+        </Row>
+        <Row Tag="LOC_UNITS_LABEL">
+            <Text>Total Units</Text>
+        </Row>
+    </EnglishText>
+</Database>
+```
+
+### my-info-panel.modinfo
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<Mod id="my-info-panel" version="1" xmlns="ModInfo">
+    <Properties>
+        <Name>Info Panel</Name>
+        <Description>Adds an empire overview panel (F8 to toggle).</Description>
+        <Authors>Your Name</Authors>
+    </Properties>
+    <ActionCriteria>
+        <Criteria id="always"><AlwaysMet/></Criteria>
+    </ActionCriteria>
+    <ActionGroups>
+        <ActionGroup id="game" scope="game" criteria="always">
+            <Actions>
+                <UIScripts>
+                    <Item>ui/info-panel.js</Item>
+                    <Item>ui/info-panel.css</Item>
+                </UIScripts>
+                <UpdateText>
+                    <Item>text/en_us/info-panel-text.xml</Item>
+                </UpdateText>
+            </Actions>
+        </ActionGroup>
+    </ActionGroups>
+</Mod>
 ```
 
 ## Best Practices
 
 1. **Use Localization** - Never hardcode text strings
 2. **Handle Null Checks** - Game objects may be null
-3. **Unsubscribe Events** - Clean up event handlers when screen closes
-4. **Match Game Style** - Use existing style classes for consistency
+3. **Clean Up Events** - Use `handle.clear()` when components are destroyed
+4. **Use Web Components** - Encapsulate functionality in custom elements
 5. **Test All Resolutions** - UI should work at different screen sizes
-6. **Use Anchoring** - Position elements relative to screen edges
+6. **Use CSS Variables** - Match the game's theme system
 7. **Provide Feedback** - Play sounds on user interactions
 8. **Performance** - Don't update UI every frame unnecessarily
 
 ## Related Documentation
 
-- [JavaScript API](../javascript/Overview.md)
-- [Art Assets](Art-Assets.md)
-- [Localization](Localization.md)
-- [ModInfo Files](../Modinfo-Files.md)
+- [JavaScript Events](../javascript/Events.md) - Event subscription reference
+- [Coherent Labs Engine](../javascript/Coherent-Labs-Engine.md) - Engine API details
+- [Localization](Localization.md) - Text and translation
+- [ModInfo Files](../Modinfo-Files.md) - Mod configuration
